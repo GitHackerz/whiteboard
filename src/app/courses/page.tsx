@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import { Book1, Clock, People, Teacher } from "iconsax-react";
 
 const courses = [
   {
@@ -90,7 +89,7 @@ export default function CoursesPage() {
             </p>
           </div>
           <Button className="w-full sm:w-auto">
-            <Book1 size={18} className="mr-2 text-white" variant="Bold" />
+            <span className="mr-2 text-lg">➕</span>
             Enroll New Course
           </Button>
         </div>
@@ -153,21 +152,13 @@ export default function CoursesPage() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2">
                         <div className="flex items-center gap-2 text-xs sm:text-sm">
-                          <Teacher
-                            size={16}
-                            className="text-primary flex-shrink-0"
-                            variant="Bold"
-                          />
+                          <span className="text-lg">👨‍🏫</span>
                           <span className="text-muted-foreground truncate">
                             {course.instructor}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-xs sm:text-sm">
-                          <People
-                            size={16}
-                            className="text-green-600 flex-shrink-0"
-                            variant="Bold"
-                          />
+                          <span className="text-lg">👥</span>
                           <span className="text-muted-foreground">
                             {course.students} students
                           </span>
@@ -175,11 +166,7 @@ export default function CoursesPage() {
                       </div>
 
                       <div className="flex items-center gap-2 text-xs sm:text-sm border-t pt-4">
-                        <Clock
-                          size={16}
-                          className="text-orange-600 flex-shrink-0"
-                          variant="Bold"
-                        />
+                        <span className="text-lg">🕐</span>
                         <span className="text-muted-foreground truncate">
                           {course.schedule}
                         </span>

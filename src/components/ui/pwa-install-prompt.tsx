@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AddCircle, CloseCircle } from "iconsax-react";
 import { useEffect, useState } from "react";
 import { Button } from "./button";
 import { Card } from "./card";
@@ -77,7 +76,7 @@ export function PWAInstallPrompt() {
                     onClick={handleInstall}
                     className="flex-1 sm:flex-initial"
                   >
-                    <AddCircle size={16} className="mr-1" />
+                    <span className="mr-1 text-lg">➕</span>
                     Install
                   </Button>
                   <Button
@@ -86,7 +85,7 @@ export function PWAInstallPrompt() {
                     onClick={handleDismiss}
                     className="flex-shrink-0"
                   >
-                    <CloseCircle size={16} />
+                    <span className="text-lg">✖️</span>
                   </Button>
                 </div>
               </div>

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
-import { ArrowRight2 } from "iconsax-react";
 
 const courses = [
   {
@@ -40,7 +39,7 @@ export function RecentCourses() {
         <CardTitle>Recent Courses</CardTitle>
         <Button variant="ghost" size="sm">
           View All
-          <ArrowRight2 size={16} className="ml-2 text-primary" variant="Bold" />
+          <span className="ml-2 text-lg">→</span>
         </Button>
       </CardHeader>
       <CardContent className="space-y-6">

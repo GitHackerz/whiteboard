@@ -3,7 +3,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { DocumentText, Star1 } from "iconsax-react";
 
 const assignments = [
   {
@@ -49,7 +48,7 @@ export function RecentAssignments() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <DocumentText size={20} variant="Bold" className="text-purple-600" />
+          <span className="text-xl">📄</span>
           Recent Assignments
         </CardTitle>
       </CardHeader>
@@ -78,7 +77,7 @@ export function RecentAssignments() {
                     ]
                   }
                 >
-                  <Star1 size={12} variant="Bold" className="mr-1" />
+                  <span className="mr-1">⭐</span>
                   {assignment.priority}
                 </Badge>
               </div>

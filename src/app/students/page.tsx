@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Call, Message, SearchNormal1 } from "iconsax-react";
 
 const students = [
   {
@@ -63,10 +62,9 @@ export default function StudentsPage() {
             <div className="flex items-center justify-between">
               <CardTitle>All Students</CardTitle>
               <div className="relative w-64">
-                <SearchNormal1
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  size={18}
-                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg">
+                  🔍
+                </span>
                 <Input
                   type="search"
                   placeholder="Search students..."
@@ -119,10 +117,10 @@ export default function StudentsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon">
-                      <Message size={18} />
+                      <span className="text-lg">💬</span>
                     </Button>
                     <Button variant="ghost" size="icon">
-                      <Call size={18} />
+                      <span className="text-lg">📞</span>
                     </Button>
                   </div>
                 </div>

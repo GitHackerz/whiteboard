@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { ArrowRight2 } from "iconsax-react";
 
 export function WelcomeBanner() {
   return (
@@ -46,11 +45,7 @@ export function WelcomeBanner() {
             size="lg"
           >
             Get Started
-            <ArrowRight2
-              size={18}
-              className="ml-2 text-primary"
-              variant="Bold"
-            />
+            <span className="ml-2 text-lg">→</span>
           </Button>
         </motion.div>
 

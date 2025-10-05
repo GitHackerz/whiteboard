@@ -4,7 +4,6 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Chart, TrendDown, TrendUp } from "iconsax-react";
 
 const performanceData = [
   { subject: "Mathematics", grade: 92, trend: "up", change: "+5%" },
@@ -54,7 +53,7 @@ export default function AnalyticsPage() {
                 <CardContent>
                   <div className="text-3xl font-bold">3.85</div>
                   <p className="text-xs text-green-500 flex items-center gap-1 mt-1">
-                    <TrendUp size={14} />
+                    <span>📈</span>
                     +0.12 from last semester
                   </p>
                 </CardContent>
@@ -109,9 +108,9 @@ export default function AnalyticsPage() {
                           }`}
                         >
                           {item.trend === "up" ? (
-                            <TrendUp size={14} />
+                            <span>📈</span>
                           ) : (
-                            <TrendDown size={14} />
+                            <span>📉</span>
                           )}
                           {item.change}
                         </span>
@@ -156,7 +155,7 @@ export default function AnalyticsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Chart size={20} variant="Bold" />
+                  <span className="text-xl">📊</span>
                   Insights & Recommendations
                 </CardTitle>
               </CardHeader>

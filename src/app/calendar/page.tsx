@@ -4,7 +4,6 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AddCircle, ArrowLeft2, ArrowRight2 } from "iconsax-react";
 
 const events = [
   {
@@ -47,7 +46,7 @@ export default function CalendarPage() {
             </p>
           </div>
           <Button>
-            <AddCircle size={18} className="mr-2 text-white" variant="Bold" />
+            <span className="mr-2 text-lg">➕</span>
             Add Event
           </Button>
         </div>
@@ -60,21 +59,13 @@ export default function CalendarPage() {
                 <CardTitle>October 2025</CardTitle>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="icon">
-                    <ArrowLeft2
-                      size={16}
-                      className="text-primary"
-                      variant="Bold"
-                    />
+                    <span className="text-lg">⬅️</span>
                   </Button>
                   <Button variant="outline" size="sm">
                     Today
                   </Button>
                   <Button variant="outline" size="icon">
-                    <ArrowRight2
-                      size={16}
-                      className="text-primary"
-                      variant="Bold"
-                    />
+                    <span className="text-lg">➡️</span>
                   </Button>
                 </div>
               </div>

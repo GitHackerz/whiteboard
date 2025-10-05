@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { SearchNormal1, Send2 } from "iconsax-react";
 
 const conversations = [
   {
@@ -79,10 +78,9 @@ export default function MessagesPage() {
           <Card>
             <CardHeader>
               <div className="relative">
-                <SearchNormal1
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  size={18}
-                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg">
+                  🔍
+                </span>
                 <Input
                   type="search"
                   placeholder="Search messages..."
@@ -175,7 +173,7 @@ export default function MessagesPage() {
               <div className="flex items-center gap-2">
                 <Input placeholder="Type a message..." />
                 <Button size="icon">
-                  <Send2 size={18} />
+                  <span className="text-lg">📤</span>
                 </Button>
               </div>
             </div>

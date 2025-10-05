@@ -11,12 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  HambergerMenu,
-  Notification,
-  SearchNormal1,
-  Setting2,
-} from "iconsax-react";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -32,17 +26,15 @@ export function Header({ onMenuClick }: HeaderProps) {
         className="lg:hidden hover:bg-accent"
         onClick={onMenuClick}
       >
-        <HambergerMenu size={24} className="text-foreground" variant="Bold" />
+        <span className="text-2xl">☰</span>
       </Button>
 
       {/* Search */}
       <div className="flex-1 max-w-md hidden sm:block">
         <div className="relative">
-          <SearchNormal1
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-            size={18}
-            variant="Linear"
-          />
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg">
+            🔍
+          </span>
           <Input
             type="search"
             placeholder="Search courses, students, messages..."
@@ -56,11 +48,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
-              <Notification
-                size={20}
-                className="text-foreground sm:w-5 sm:h-5"
-                variant="Bold"
-              />
+              <span className="text-xl">🔔</span>
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
             </Button>
           </DropdownMenuTrigger>
@@ -92,7 +80,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         {/* Settings */}
         <Button variant="ghost" size="icon" className="hidden sm:flex">
-          <Setting2 size={20} className="text-foreground" variant="Bold" />
+          <span className="text-xl">⚙️</span>
         </Button>
 
         {/* User Menu */}
