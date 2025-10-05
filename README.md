@@ -1,6 +1,6 @@
 # 🎓 White Board - Modern Learning Management Platform
 
-A cutting-edge Progressive Web App (PWA) built with Next.js 15, featuring a beautiful UI inspired by modern design systems. White Board is a comprehensive learning management platform similar to Blackboard, designed with exceptional UI/UX principles and clean architecture.
+White Board is a comprehensive learning management platform similar to Blackboard, designed with exceptional UI/UX principles and clean architecture.
 
 ![White Board](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=for-the-badge&logo=typescript)
