@@ -35,8 +35,8 @@ export function WelcomeBanner() {
               John Doe!
             </h1>
             <p className="max-w-md text-sm sm:text-base lg:text-lg text-white/90">
-              You have 3 assignments due this week and 2 upcoming exams. Let's
-              make this week productive!
+              You have 3 assignments due this week and 2 upcoming exams.
+              Let&apos;s make this week productive!
             </p>
           </div>
 
