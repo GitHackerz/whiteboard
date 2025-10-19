@@ -1,0 +1,96 @@
+'use client';
+
+import { signOut } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { LogOut } from 'lucide-react';
+
+export default function SignOutPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const callbackUrl = searchParams.get('callbackUrl') || '/signin';
+
+  useEffect(() => {
+    // Automatically sign out when the page loads
+    handleSignOut();
+  }, []);
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    try {
+      await signOut({
+        redirect: false,
+      });
+    } catch (error) {
+      console.error('Sign out error:', error);
+    } finally {
+      // Always clear storage and redirect, even if signOut fails
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Clear any NextAuth cookies manually as fallback
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c
+            .replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+      } catch (storageError) {
+        console.error('Storage cleanup error:', storageError);
+      }
+      
+      // Redirect after a short delay to show the signing out message
+      setTimeout(() => {
+        router.push(callbackUrl);
+        router.refresh();
+      }, 1000);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <Card className="shadow-lg">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
+              <LogOut className="h-6 w-6 text-red-600 dark:text-red-400" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+              Signing Out
+            </CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
+              Please wait while we sign you out securely...
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {isSigningOut ? 'Signing out...' : 'Redirecting...'}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mb-4">
+              Clearing session data and tokens for security.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => router.push('/signin')}
+              className="w-full"
+            >
+              Go to Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  );
+}

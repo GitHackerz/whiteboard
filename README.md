@@ -1,274 +1,343 @@
 # 🎓 White Board - Modern Learning Management Platform
 
-White Board is a comprehensive learning management platform similar to Blackboard, designed with exceptional UI/UX principles and clean architecture.
+## 📋 Project Overview
 
-![White Board](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=for-the-badge&logo=typescript)
-![PWA](https://img.shields.io/badge/PWA-Enabled-purple?style=for-the-badge)
+White Board is a modern, full-stack learning management system built with Next.js 14, NestJS, and PostgreSQL. It provides a comprehensive platform for students, teachers, and administrators to manage courses, assignments, and educational content.
 
-## ✨ Features
+## ✨ Current Features
 
-### 🎯 Core Functionality
+### 🔐 Authentication & Authorization
+- ✅ Secure JWT-based authentication
+- ✅ NextAuth integration for session management
+- ✅ Role-based access control (Student, Teacher, Admin)
+- ✅ Protected routes with middleware
+- ✅ Auto-redirect based on authentication status
+- ✅ Token refresh functionality
 
-- **📊 Dashboard**: Comprehensive overview with stats, recent courses, assignments, and upcoming events
-- **📚 Courses**: Browse and manage enrolled courses with progress tracking
-- **📅 Calendar**: Visual calendar with event management
-- **💬 Messages**: Real-time messaging with instructors and classmates
-- **📈 Analytics**: Detailed performance tracking and insights
-- **👥 Students**: Student directory and collaboration tools
-- **⚙️ Settings**: Complete profile and account management
+### 👥 User Roles
 
-### 🚀 Technical Features
+#### Student Features
+- ✅ View enrolled courses
+- ✅ Access course materials
+- ✅ View assignments
+- ✅ Track progress
+- ✅ Personal dashboard
+- ✅ Profile settings
 
-- **Progressive Web App (PWA)**: Installable, works offline, push notifications ready
-- **Responsive Design**: Fully responsive across all devices
-- **Modern UI Components**: Built with shadcn/ui and Radix UI
-- **Smooth Animations**: Powered by Framer Motion
-- **Icon System**: Beautiful icons from Iconsax React
-- **TypeScript**: Fully typed for better developer experience
-- **Clean Architecture**: Well-organized folder structure and code organization
+#### Teacher/Instructor Features
+All student features plus:
+- ✅ Create and manage courses
+- ✅ Edit course details
+- ✅ Delete courses
+- ✅ View enrolled students
+- ✅ Course analytics
+- 🚧 Create assignments (coming soon)
+- 🚧 Grade submissions (coming soon)
 
-## 🛠️ Tech Stack
+#### Admin Features
+- ✅ Full system access
+- ✅ Manage all users
+- ✅ Manage all courses
+- ✅ System configuration
 
-- **Framework**: Next.js 15 (App Router)
+### 📚 Course Management
+- ✅ Create courses with detailed information
+- ✅ Course code, title, description
+- ✅ Schedule and location settings
+- ✅ Maximum enrollment limits
+- ✅ Start and end dates
+- ✅ Course instructor assignment
+- ✅ Real-time enrollment tracking
+- ✅ Edit course information
+- ✅ Delete courses with confirmation
+
+### 🎨 UI/UX Features
+- ✅ Modern, responsive design
+- ✅ Smooth animations with Framer Motion
+- ✅ Gradient accents and glassmorphism
+- ✅ Dark mode ready
+- ✅ Mobile-first approach
+- ✅ Loading states and skeletons
+- ✅ Toast notifications
+- ✅ Modal dialogs
+- ✅ Form validation
+
+### 🏗️ Architecture
+- ✅ Next.js 14 App Router
+- ✅ Server Components by default
+- ✅ Client Components when needed
+- ✅ TypeScript throughout
+- ✅ Server Actions for data mutations
+- ✅ API routes for auth
+- ✅ Prisma ORM
+- ✅ PostgreSQL database
+
+## 🚧 Coming Soon
+
+### Phase 1: Core Features (In Progress)
+- [ ] Assignment creation and management
+- [ ] Assignment submission workflow
+- [ ] File upload functionality
+- [ ] Student management interface
+- [ ] Real-time messaging system
+
+### Phase 2: Enhanced Features
+- [ ] Calendar integration
+- [ ] Analytics dashboard
+- [ ] Grade book
+- [ ] Attendance tracking
+- [ ] Notifications system
+
+### Phase 3: Advanced Features
+- [ ] Video conferencing integration
+- [ ] Live quizzes and polls
+- [ ] Discussion forums
+- [ ] Resource library
+- [ ] Advanced reporting
+
+## 📊 Technical Stack
+
+### Frontend
+- **Framework**: Next.js 14
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS 4
-- **UI Components**: shadcn/ui + Radix UI
-- **Icons**: Iconsax React
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
 - **Animations**: Framer Motion
-- **PWA**: @ducanh2912/next-pwa
-- **State Management**: React Hooks
-- **Code Quality**: ESLint
+- **Auth**: NextAuth.js
+- **Forms**: React Hook Form
+- **Validation**: Zod
+
+### Backend
+- **Framework**: NestJS
+- **Language**: TypeScript
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Auth**: JWT
+- **Validation**: class-validator
+
+### DevOps
+- **Version Control**: Git
+- **Package Manager**: npm
+- **Linting**: ESLint
+- **Formatting**: Prettier
+
+## 🎯 Key Improvements Made
+
+### 1. Enhanced Authentication Flow
+- Moved from `/auth/signin` to `/signin` for cleaner URLs
+- Created `(auth)` route group with automatic redirects
+- Implemented comprehensive middleware for route protection
+- Added SessionProvider for client-side session access
+
+### 2. Role-Based UI
+- Dynamic sidebar navigation based on user role
+- Teacher-specific pages and features
+- Admin access to all functionality
+- Proper permission checks throughout
+
+### 3. Course Management
+- Complete CRUD operations for courses
+- Beautiful course cards with animations
+- Responsive grid layout
+- Empty states with call-to-action
+- Form validation and error handling
+
+### 4. UI/UX Enhancements
+- Created missing UI components (Dialog, Textarea)
+- Enhanced signin page with animations
+- Added loading states everywhere
+- Implemented proper error messages
+- Consistent design system
+
+### 5. Code Quality
+- Fixed TypeScript errors
+- Improved type safety
+- Better error handling
+- Consistent code style
+- Proper component organization
 
 ## 📁 Project Structure
 
 ```
 whiteboard/
-├── src/
-│   ├── app/                    # Next.js App Router pages
-│   │   ├── dashboard/          # Dashboard page
-│   │   ├── courses/            # Courses page
-│   │   ├── calendar/           # Calendar page
-│   │   ├── messages/           # Messages page
-│   │   ├── analytics/          # Analytics page
-│   │   ├── students/           # Students page
-│   │   ├── settings/           # Settings page
-│   │   ├── layout.tsx          # Root layout
-│   │   ├── page.tsx            # Home page
-│   │   └── globals.css         # Global styles
-│   ├── components/
-│   │   ├── ui/                 # Reusable UI components (shadcn)
-│   │   ├── layout/             # Layout components
-│   │   │   ├── sidebar.tsx     # Main navigation sidebar
-│   │   │   ├── header.tsx      # Top header bar
-│   │   │   └── dashboard-layout.tsx
-│   │   └── dashboard/          # Dashboard-specific components
-│   │       ├── stats-cards.tsx
-│   │       ├── recent-courses.tsx
-│   │       ├── upcoming-events.tsx
-│   │       └── recent-assignments.tsx
-│   └── lib/
-│       └── utils.ts            # Utility functions
-├── public/
-│   ├── manifest.json           # PWA manifest
-│   └── icons/                  # PWA icons (to be added)
-├── next.config.ts              # Next.js configuration
-├── tailwind.config.ts          # Tailwind configuration
-└── tsconfig.json              # TypeScript configuration
+├── IMPLEMENTATION_SUMMARY.md    # Detailed implementation notes
+├── QUICK_START.md               # Getting started guide
+├── README.md                    # This file
+│
+├── whiteboard-api/              # Backend (NestJS)
+│   ├── src/
+│   │   ├── auth/               # Authentication module
+│   │   ├── users/              # User management
+│   │   ├── courses/            # Course management
+│   │   ├── assignments/        # Assignment module
+│   │   ├── settings/           # User settings
+│   │   └── prisma/             # Database service
+│   │
+│   ├── prisma/
+│   │   ├── schema.prisma       # Database schema
+│   │   ├── seed.ts             # Seed data
+│   │   └── migrations/         # Migration history
+│   │
+│   └── package.json
+│
+└── whiteboard-web/              # Frontend (Next.js)
+    ├── src/
+    │   ├── app/                # App Router
+    │   │   ├── (auth)/        # Auth route group
+    │   │   │   └── signin/    # Sign in page
+    │   │   ├── dashboard/     # Dashboard
+    │   │   ├── courses/       # Courses
+    │   │   │   └── manage/    # Course management (teachers)
+    │   │   ├── assignments/   # Assignments
+    │   │   ├── calendar/      # Calendar
+    │   │   ├── messages/      # Messages
+    │   │   ├── analytics/     # Analytics
+    │   │   ├── students/      # Students
+    │   │   ├── settings/      # Settings
+    │   │   └── api/           # API routes
+    │   │       └── auth/      # NextAuth config
+    │   │
+    │   ├── components/         # React components
+    │   │   ├── ui/            # UI primitives
+    │   │   ├── layout/        # Layout components
+    │   │   ├── courses/       # Course components
+    │   │   ├── dashboard/     # Dashboard components
+    │   │   └── providers.tsx  # App providers
+    │   │
+    │   ├── actions/            # Server actions
+    │   │   ├── auth.ts        # Auth actions
+    │   │   ├── courses.ts     # Course actions
+    │   │   ├── assignments.ts # Assignment actions
+    │   │   └── utils/         # Shared utilities
+    │   │
+    │   ├── lib/               # Utilities
+    │   │   └── utils.ts       # Helper functions
+    │   │
+    │   └── middleware.ts      # Route protection
+    │
+    ├── public/                 # Static assets
+    └── package.json
 ```
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-- Node.js 18+ and npm/yarn/pnpm
-- Git
-
-### Installation
-
-1. **Clone the repository** (if applicable)
-
-   ```bash
-   git clone <repository-url>
-   cd whiteboard
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Run the development server**
-
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
-
-4. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-### Building for Production
-
+### Quick Setup
 ```bash
-# Build the application
-npm run build
+# Clone repository
+git clone <repository-url>
 
-# Start the production server
-npm run start
+# Install dependencies
+cd whiteboard-api && npm install
+cd ../whiteboard-web && npm install
+
+# Setup environment variables
+cp .env.example .env
+
+# Run database migrations
+cd whiteboard-api
+npx prisma migrate dev
+
+# Start development servers
+# Terminal 1: API
+cd whiteboard-api && npm run start:dev
+
+# Terminal 2: Web
+cd whiteboard-web && npm run dev
 ```
 
-### PWA Features
+### Demo Accounts
+```
+Student:  student@example.com  / Student123!
+Teacher:  teacher@example.com  / Teacher123!
+Admin:    admin@example.com    / Admin123!
+```
 
-The application is configured as a Progressive Web App with:
+## 📖 Documentation
 
-- **Service Worker**: Automatic caching and offline support
-- **Manifest**: App installation on mobile and desktop
-- **Icons**: Multiple sizes for different devices
-- **Shortcuts**: Quick access to key features
-
-To test PWA features:
-
-1. Build the production version
-2. Serve it over HTTPS (required for PWA)
-3. Use Chrome DevTools > Application > Manifest to test
+- **IMPLEMENTATION_SUMMARY.md** - Detailed technical implementation
+- **QUICK_START.md** - Getting started guide
+- **docs/** - Additional documentation
+  - API endpoints documentation
+  - UI/UX design system
+  - Component library
 
 ## 🎨 Design System
 
 ### Colors
-
-The application uses a sophisticated color system with support for light and dark modes:
-
-- **Primary**: Blue (#3B82F6)
-- **Secondary**: Slate gray
-- **Accent**: Various contextual colors
-- **Success**: Green
-- **Warning**: Yellow
-- **Error**: Red
-
-### Typography
-
-- **Font Family**: Geist Sans (primary), Geist Mono (code)
-- **Font Sizes**: Responsive scale from xs to 3xl
-
-### Components
-
-All UI components are built with:
-
-- **Accessibility** in mind (ARIA labels, keyboard navigation)
-- **Variants** for different use cases
-- **Animations** for smooth transitions
-
-## 🎯 Key Pages & Features
-
-### Dashboard (`/dashboard`)
-
-- Overview statistics cards
-- Recent courses with progress
-- Upcoming events calendar
-- Recent assignments tracker
-
-### Courses (`/courses`)
-
-- Course grid with detailed cards
-- Progress tracking
-- Instructor information
-- Schedule display
-
-### Calendar (`/calendar`)
-
-- Full month view
-- Event management
-- Color-coded event types
-- Quick navigation
-
-### Messages (`/messages`)
-
-- Conversation list
-- Real-time chat interface
-- Search functionality
-- Message threading
-
-### Analytics (`/analytics`)
-
-- Performance metrics
-- Subject-wise breakdown
-- Study hours tracking
-- Personalized insights
-
-### Students (`/students`)
-
-- Student directory
-- Quick contact options
-- Status indicators
-- Search and filter
-
-### Settings (`/settings`)
-
-- Profile management
-- Account security
-- Notification preferences
-- Theme customization
-
-## 🔧 Customization
-
-### Adding New Components
-
-Use shadcn CLI to add new components:
-
-```bash
-npx shadcn-ui@latest add [component-name]
+```css
+Primary:   Blue → Purple gradient
+Success:   Green (#10b981)
+Warning:   Orange (#f59e0b)
+Error:     Red (#ef4444)
+Muted:     Gray (#6b7280)
 ```
 
-### Modifying Theme
+### Typography
+```css
+Font Family: Geist Sans
+Headings:    font-bold, tracking-tight
+Body:        text-base, leading-relaxed
+Small:       text-sm
+```
 
-Edit `src/app/globals.css` to customize:
+### Components
+- Consistent border radius: 8px (rounded-lg)
+- Shadow: subtle elevation
+- Transitions: 200ms ease
+- Focus rings: 2px offset
 
-- Color variables
-- Spacing
-- Border radius
-- Shadows
+## 🔧 Development
 
-### Adding New Pages
+### Prerequisites
+- Node.js 18+
+- PostgreSQL 14+
+- npm or yarn
 
-1. Create a new folder in `src/app/`
-2. Add a `page.tsx` file
-3. Wrap content with `DashboardLayout`
-4. Add navigation link in `src/components/layout/sidebar.tsx`
+### Scripts
+```bash
+# Development
+npm run dev          # Start dev server
+npm run build        # Build for production
+npm run start        # Start production server
 
-## 📱 PWA Installation
+# Database
+npx prisma studio    # Open Prisma Studio
+npx prisma migrate   # Run migrations
+npx prisma generate  # Generate Prisma Client
 
-### Desktop (Chrome/Edge)
+# Code Quality
+npm run lint         # Run ESLint
+npm run format       # Format with Prettier
+npm run typecheck    # TypeScript check
+```
 
-1. Click the install icon in the address bar
-2. Or go to Menu > Install White Board
+## 🤝 Contributing
 
-### Mobile (Android)
-
-1. Tap the menu (3 dots)
-2. Select "Add to Home screen"
-
-### Mobile (iOS)
-
-1. Tap the Share button
-2. Select "Add to Home Screen"
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Write/update tests
+5. Submit a pull request
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is private and confidential.
 
-## 🙏 Acknowledgments
+## 👨‍💻 Development Team
 
-- UI Components from [shadcn/ui](https://ui.shadcn.com)
-- Icons from [Iconsax](https://iconsax.io)
-- Animation library [Framer Motion](https://www.framer.com/motion)
+- Full-stack development
+- UI/UX design
+- Database architecture
+- API design
+- Testing & QA
 
-**Built with ❤️ using Next.js and modern web technologies**
+## 📞 Support
+
+For questions or issues:
+- Check documentation
+- Review error logs
+- Contact development team
+
+---
+
+**Built with ❤️ using Next.js and NestJS**
