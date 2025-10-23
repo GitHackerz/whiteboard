@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { OfflineIndicator } from "@/components/offline-indicator";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -58,7 +59,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <OfflineIndicator />
+        </Providers>
         <Toaster />
       </body>
     </html>

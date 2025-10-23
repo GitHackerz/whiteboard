@@ -50,7 +50,6 @@ export const config = {
     '/calendar/:path*',
     '/messages/:path*',
     '/analytics/:path*',
-    '/students/:path*',
     '/settings/:path*',
     '/signin/:path*',
     '/sign-out/:path*',

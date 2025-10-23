@@ -2,54 +2,54 @@
 
 import { signOut } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { LogOut } from 'lucide-react';
 
-export default function SignOutPage() {
+function SignOutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const callbackUrl = searchParams.get('callbackUrl') || '/signin';
 
   useEffect(() => {
-    // Automatically sign out when the page loads
-    handleSignOut();
-  }, []);
-
-  async function handleSignOut() {
-    setIsSigningOut(true);
-    try {
-      await signOut({
-        redirect: false,
-      });
-    } catch (error) {
-      console.error('Sign out error:', error);
-    } finally {
-      // Always clear storage and redirect, even if signOut fails
+    const handleSignOut = async () => {
+      setIsSigningOut(true);
       try {
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        // Clear any NextAuth cookies manually as fallback
-        document.cookie.split(";").forEach((c) => {
-          document.cookie = c
-            .replace(/^ +/, "")
-            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        await signOut({
+          redirect: false,
         });
-      } catch (storageError) {
-        console.error('Storage cleanup error:', storageError);
+      } catch (error) {
+        console.error('Sign out error:', error);
+      } finally {
+        // Always clear storage and redirect, even if signOut fails
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+          
+          // Clear any NextAuth cookies manually as fallback
+          document.cookie.split(";").forEach((c) => {
+            document.cookie = c
+              .replace(/^ +/, "")
+              .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+          });
+        } catch (storageError) {
+          console.error('Storage cleanup error:', storageError);
+        }
+        
+        // Redirect after a short delay to show the signing out message
+        setTimeout(() => {
+          router.push(callbackUrl);
+          router.refresh();
+        }, 1000);
       }
-      
-      // Redirect after a short delay to show the signing out message
-      setTimeout(() => {
-        router.push(callbackUrl);
-        router.refresh();
-      }, 1000);
-    }
-  }
+    };
+
+    // Automatically sign out when the page loads
+    void handleSignOut();
+  }, [router, callbackUrl]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
@@ -92,5 +92,17 @@ export default function SignOutPage() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function SignOutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+      </div>
+    }>
+      <SignOutContent />
+    </Suspense>
   );
 }
