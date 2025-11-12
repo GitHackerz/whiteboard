@@ -1,8 +1,9 @@
 'use client';
 
+import { CAGChat } from '@/components/ai-study/CAGChat';
 import { geminiService } from '@/lib/services/geminiService';
 import { fileToBase64, isValidPDF } from '@/lib/utils/fileUtils';
-import { StudyMaterial } from '@/types';
+import { StudyMaterial, UploadedDocument } from '@/types';
 import {
   BookOpen,
   Brain,
@@ -10,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
+  MessageCircle,
   RotateCcw,
   Sparkles,
   Target,
@@ -28,8 +30,9 @@ export default function AIStudyTestPage() {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [currentFlashcard, setCurrentFlashcard] = useState(0);
   const [isFlashcardFlipped, setIsFlashcardFlipped] = useState(false);
-  const [activeTab, setActiveTab] = useState<'summary' | 'quiz' | 'flashcards'>('summary');
+  const [activeTab, setActiveTab] = useState<'summary' | 'quiz' | 'flashcards' | 'chat'>('summary');
   const [fileName, setFileName] = useState<string>('');
+  const [uploadedDocument, setUploadedDocument] = useState<UploadedDocument | null>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,6 +57,15 @@ export default function AIStudyTestPage() {
       
       console.log('✅ Study material received:', material);
       setStudyMaterial(material);
+      setUploadedDocument({
+        id: crypto.randomUUID(),
+        title: file.name.replace('.pdf', ''),
+        fileName: file.name,
+        fileSize: file.size,
+        pdfBase64: pdfBase64,
+        uploadedAt: new Date(),
+        studyMaterial: material
+      });
       setSelectedAnswers({});
       setCurrentQuizQuestion(0);
       setCurrentFlashcard(0);
@@ -264,6 +276,17 @@ export default function AIStudyTestPage() {
                 >
                   <Sparkles className="h-4 w-4" />
                   Flashcards
+                </button>
+                <button
+                  onClick={() => setActiveTab('chat')}
+                  className={`flex items-center gap-2 px-6 py-4 font-medium text-sm transition-all whitespace-nowrap ${
+                    activeTab === 'chat'
+                      ? 'text-primary border-b-2 border-primary bg-primary/5'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  }`}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  AI Chat
                 </button>
               </div>
               {/* Tab Content */}
@@ -499,6 +522,13 @@ export default function AIStudyTestPage() {
                   <div className="text-center text-xs text-muted-foreground space-y-1">
                     <p>💡 Tip: Use arrow keys to navigate • Space to flip</p>
                   </div>
+                </div>
+              )}
+
+              {/* Chat Tab */}
+              {activeTab === 'chat' && uploadedDocument && (
+                <div className="animate-in fade-in duration-300">
+                  <CAGChat document={uploadedDocument} />
                 </div>
               )}
               </div>
