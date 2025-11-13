@@ -1,15 +1,15 @@
 import {
-    Injectable,
-    NotFoundException,
-    ForbiddenException,
-    Inject,
-    forwardRef,
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
-    CreateAnnouncementDto,
-    UpdateAnnouncementDto,
-    QueryAnnouncementsDto,
+  CreateAnnouncementDto,
+  UpdateAnnouncementDto,
+  QueryAnnouncementsDto,
 } from './dto/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 

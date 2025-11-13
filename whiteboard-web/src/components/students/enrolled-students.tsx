@@ -7,11 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Users, Search, Mail, GraduationCap, Loader2 } from 'lucide-react';
+import { getEnrolledStudents } from '@/actions/courses';
 
 interface Student {
   id: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
   email: string;
   image?: string;
   enrolledAt: string;
@@ -33,19 +35,11 @@ export function EnrolledStudents({ courseId, courseTitle }: EnrolledStudentsProp
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/courses/${courseId}/students`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
-        );
+        const result = await getEnrolledStudents(courseId);
 
-        if (response.ok) {
-          const data = await response.json();
-          setStudents(data.students || []);
-          setFilteredStudents(data.students || []);
+        if (result.success && result.data) {
+          setStudents(result.data.students || []);
+          setFilteredStudents(result.data.students || []);
         }
       } catch (error) {
         console.error('Error fetching students:', error);
@@ -66,8 +60,8 @@ export function EnrolledStudents({ courseId, courseTitle }: EnrolledStudentsProp
     const query = searchQuery.toLowerCase();
     const filtered = students.filter(
       (student) =>
-        student.firstName.toLowerCase().includes(query) ||
-        student.lastName.toLowerCase().includes(query) ||
+        (student.firstName?.toLowerCase() || '').includes(query) ||
+        (student.lastName?.toLowerCase() || '').includes(query) ||
         student.email.toLowerCase().includes(query)
     );
     setFilteredStudents(filtered);
@@ -155,13 +149,13 @@ export function EnrolledStudents({ courseId, courseTitle }: EnrolledStudentsProp
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={student.image} />
                         <AvatarFallback>
-                          {student.firstName[0]}
-                          {student.lastName[0]}
+                          {(student.firstName?.[0] || '?').toUpperCase()}
+                          {(student.lastName?.[0] || '').toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="font-semibold">
-                          {student.firstName} {student.lastName}
+                          {student.name || `${student.firstName || 'Unknown'} ${student.lastName || 'Student'}`}
                         </p>
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <Mail className="h-3 w-3" />

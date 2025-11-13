@@ -2,9 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/auth-options";
 import { getCourses } from "@/actions/courses";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { ManageCoursesClient } from "@/components/courses/manage-courses-client";
+import { ManageCoursesPageClient } from "@/components/courses/manage-courses-page-client";
 
 export const dynamic = 'force-dynamic';
 
@@ -34,22 +32,5 @@ export default async function ManageCoursesPage() {
     ? allCourses 
     : allCourses.filter((course: any) => course.instructor?.id === session.user?.id);
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Manage Courses</h1>
-          <p className="text-muted-foreground">
-            Manage your courses, modules, assignments, and students
-          </p>
-        </div>
-        <Button size="lg" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Course
-        </Button>
-      </div>
-
-      <ManageCoursesClient initialCourses={myCourses} />
-    </div>
-  );
+  return <ManageCoursesPageClient initialCourses={myCourses} />;
 }

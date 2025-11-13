@@ -57,11 +57,19 @@ export class NotificationsGateway
 
   // Emit notification to specific user
   emitToUser(userId: string, notification: any) {
+    console.log(
+      `🔔 Emitting notification to user:${userId}`,
+      notification.type,
+    );
     this.server.to(`user:${userId}`).emit('notification', notification);
   }
 
   // Emit notification to multiple users
   emitToUsers(userIds: string[], notification: any) {
+    console.log(
+      `🔔 Emitting notification to ${userIds.length} users`,
+      notification.type,
+    );
     userIds.forEach((userId) => {
       this.server.to(`user:${userId}`).emit('notification', notification);
     });

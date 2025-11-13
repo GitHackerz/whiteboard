@@ -29,6 +29,11 @@ export class MessagesController {
     return this.messagesService.findConversations(req.user.userId);
   }
 
+  @Get('messageable-users')
+  getMessageableUsers(@Request() req) {
+    return this.messagesService.getMessageableUsers(req.user.userId);
+  }
+
   @Get('conversation/:partnerId')
   findConversationMessages(
     @Request() req,

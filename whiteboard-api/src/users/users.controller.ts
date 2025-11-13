@@ -1,16 +1,16 @@
 import {
-    Controller,
-    Get,
-    Patch,
-    Delete,
-    Param,
-    Body,
-    Query,
-    UseGuards,
-    Post,
-    UseInterceptors,
-    UploadedFile,
-    Request,
+  Controller,
+  Get,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  Request,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -66,7 +66,12 @@ export class UsersController {
   @Patch('me/profile')
   @ApiOperation({ summary: 'Update current user profile' })
   updateProfile(@Request() req, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(req.user.userId, updateUserDto, req.user.userId, req.user.role);
+    return this.usersService.update(
+      req.user.userId,
+      updateUserDto,
+      req.user.userId,
+      req.user.role,
+    );
   }
 
   @Post('me/avatar')
@@ -94,7 +99,10 @@ export class UsersController {
       },
     }),
   )
-  async uploadAvatar(@UploadedFile() file: Express.Multer.File, @Request() req) {
+  async uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req,
+  ) {
     const avatarUrl = `/uploads/avatars/${file.filename}`;
     await this.usersService.update(
       req.user.userId,
@@ -107,5 +115,18 @@ export class UsersController {
       avatar: avatarUrl,
       message: 'Profile picture uploaded successfully',
     };
+  }
+
+  @Patch('me/password')
+  @ApiOperation({ summary: 'Change current user password' })
+  changePassword(
+    @Request() req,
+    @Body() body: { currentPassword: string; newPassword: string },
+  ) {
+    return this.usersService.changePassword(
+      req.user.userId,
+      body.currentPassword,
+      body.newPassword,
+    );
   }
 }

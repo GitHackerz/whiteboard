@@ -1,7 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationType } from '@prisma/client';
 import { NotificationsGateway } from './notifications.gateway';
+import { MailerService } from '../common/mailer.service';
 
 export interface CreateNotificationDto {
   userId: string;
@@ -16,6 +22,8 @@ export class NotificationsService {
   constructor(
     private prisma: PrismaService,
     private notificationsGateway: NotificationsGateway,
+    @Inject(forwardRef(() => MailerService))
+    private mailerService: MailerService,
   ) {}
 
   async create(dto: CreateNotificationDto) {
@@ -36,21 +44,24 @@ export class NotificationsService {
   }
 
   async createMany(dtos: CreateNotificationDto[]) {
-    const notifications = await this.prisma.notification.createMany({
-      data: dtos.map((dto) => ({
-        userId: dto.userId,
-        type: dto.type,
-        title: dto.title,
-        message: dto.message,
-        data: dto.data || {},
-      })),
-    });
+    // Create notifications individually to get IDs for real-time emission
+    const notifications = await Promise.all(
+      dtos.map(async (dto) => {
+        const notification = await this.prisma.notification.create({
+          data: {
+            userId: dto.userId,
+            type: dto.type,
+            title: dto.title,
+            message: dto.message,
+            data: dto.data || {},
+          },
+        });
 
-    // Emit to all users
-    const userIds = dtos.map((dto) => dto.userId);
-    this.notificationsGateway.emitToUsers(
-      userIds,
-      { message: 'New notifications available' },
+        // Emit real-time notification for each user
+        this.notificationsGateway.emitToUser(dto.userId, notification);
+
+        return notification;
+      }),
     );
 
     return notifications;
@@ -158,7 +169,11 @@ export class NotificationsService {
 
   // Helper methods for creating specific notification types
 
-  async notifyNewMessage(receiverId: string, senderId: string, senderName: string) {
+  async notifyNewMessage(
+    receiverId: string,
+    senderId: string,
+    senderName: string,
+  ) {
     return this.create({
       userId: receiverId,
       type: 'MESSAGE',
@@ -183,6 +198,27 @@ export class NotificationsService {
       data: { assignmentId, courseTitle, dueDate: dueDate.toISOString() },
     }));
 
+    // Send emails to students with email notifications enabled
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: studentIds } },
+      include: { settings: true },
+    });
+
+    for (const user of users) {
+      if (
+        user.settings?.emailNotifications &&
+        user.settings?.assignmentNotifications
+      ) {
+        await this.mailerService.sendAssignmentCreatedEmail(
+          user.email,
+          `${user.firstName} ${user.lastName}`,
+          courseTitle,
+          assignmentTitle,
+          dueDate,
+        );
+      }
+    }
+
     return this.createMany(dtos);
   }
 
@@ -191,7 +227,27 @@ export class NotificationsService {
     studentName: string,
     assignmentTitle: string,
     submissionId: string,
+    courseTitle: string,
   ) {
+    // Send email to instructor
+    const instructor = await this.prisma.user.findUnique({
+      where: { id: instructorId },
+      include: { settings: true },
+    });
+
+    if (
+      instructor?.settings?.emailNotifications &&
+      instructor.settings?.assignmentNotifications
+    ) {
+      await this.mailerService.sendSubmissionReceivedEmail(
+        instructor.email,
+        `${instructor.firstName} ${instructor.lastName}`,
+        studentName,
+        assignmentTitle,
+        courseTitle,
+      );
+    }
+
     return this.create({
       userId: instructorId,
       type: 'SUBMISSION_RECEIVED',
@@ -206,13 +262,35 @@ export class NotificationsService {
     assignmentTitle: string,
     grade: number,
     submissionId: string,
+    maxPoints: number,
+    feedback?: string,
   ) {
+    // Send email to student
+    const student = await this.prisma.user.findUnique({
+      where: { id: studentId },
+      include: { settings: true },
+    });
+
+    if (
+      student?.settings?.emailNotifications &&
+      student.settings?.assignmentNotifications
+    ) {
+      await this.mailerService.sendSubmissionGradedEmail(
+        student.email,
+        `${student.firstName} ${student.lastName}`,
+        assignmentTitle,
+        grade,
+        maxPoints,
+        feedback,
+      );
+    }
+
     return this.create({
       userId: studentId,
       type: 'SUBMISSION_GRADED',
       title: 'Assignment Graded',
-      message: `Your submission for "${assignmentTitle}" has been graded: ${grade}`,
-      data: { submissionId, assignmentTitle, grade },
+      message: `Your submission for "${assignmentTitle}" has been graded: ${grade}/${maxPoints}`,
+      data: { submissionId, assignmentTitle, grade, maxPoints, feedback },
     });
   }
 
@@ -259,6 +337,100 @@ export class NotificationsService {
       title: 'Course Enrollment',
       message: `You have been enrolled in ${courseTitle}`,
       data: { courseId },
+    });
+  }
+
+  async notifyModuleCompleted(
+    studentId: string,
+    moduleTitle: string,
+    courseTitle: string,
+    moduleId: string,
+  ) {
+    // Send email to student
+    const student = await this.prisma.user.findUnique({
+      where: { id: studentId },
+      include: { settings: true },
+    });
+
+    if (student?.settings?.emailNotifications) {
+      await this.mailerService.sendModuleCompletedEmail(
+        student.email,
+        `${student.firstName} ${student.lastName}`,
+        moduleTitle,
+        courseTitle,
+      );
+    }
+
+    return this.create({
+      userId: studentId,
+      type: 'COURSE_UPDATE',
+      title: 'Module Completed',
+      message: `Congratulations! You completed "${moduleTitle}" in ${courseTitle}`,
+      data: { moduleId, moduleTitle, courseTitle },
+    });
+  }
+
+  async notifyCourseCompleted(
+    studentId: string,
+    courseTitle: string,
+    courseId: string,
+    completionRate: number,
+  ) {
+    // Send email to student
+    const student = await this.prisma.user.findUnique({
+      where: { id: studentId },
+      include: { settings: true },
+    });
+
+    if (student?.settings?.emailNotifications) {
+      await this.mailerService.sendCourseCompletedEmail(
+        student.email,
+        `${student.firstName} ${student.lastName}`,
+        courseTitle,
+        completionRate,
+      );
+    }
+
+    return this.create({
+      userId: studentId,
+      type: 'COURSE_UPDATE',
+      title: 'Course Completed',
+      message: `🎓 Congratulations! You completed ${courseTitle} with ${completionRate}% completion rate!`,
+      data: { courseId, courseTitle, completionRate },
+    });
+  }
+
+  async notifyQuizCompleted(
+    studentId: string,
+    quizTitle: string,
+    courseTitle: string,
+    score: number,
+    maxScore: number,
+    quizId: string,
+  ) {
+    // Send email to student
+    const student = await this.prisma.user.findUnique({
+      where: { id: studentId },
+      include: { settings: true },
+    });
+
+    if (student?.settings?.emailNotifications) {
+      await this.mailerService.sendQuizCompletedEmail(
+        student.email,
+        `${student.firstName} ${student.lastName}`,
+        quizTitle,
+        courseTitle,
+        score,
+        maxScore,
+      );
+    }
+
+    return this.create({
+      userId: studentId,
+      type: 'COURSE_UPDATE',
+      title: 'Quiz Completed',
+      message: `You completed "${quizTitle}" in ${courseTitle}. Score: ${score}/${maxScore}`,
+      data: { quizId, quizTitle, courseTitle, score, maxScore },
     });
   }
 }

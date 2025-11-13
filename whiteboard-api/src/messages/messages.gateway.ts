@@ -1,11 +1,11 @@
 import {
-    WebSocketGateway,
-    WebSocketServer,
-    SubscribeMessage,
-    MessageBody,
-    ConnectedSocket,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Injectable, UseGuards } from '@nestjs/common';
@@ -47,40 +47,58 @@ export class MessagesGateway
 
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('register')
-  handleRegister(
+  async handleRegister(
     @MessageBody() data: { userId: string },
     @ConnectedSocket() client: Socket,
   ) {
+    console.log(
+      `👤 User registering for messages: ${data.userId} (socket: ${client.id})`,
+    );
     this.userSockets.set(data.userId, client.id);
-    client.join(`user:${data.userId}`);
+    await client.join(`user:${data.userId}`);
+    console.log(`✅ User ${data.userId} joined room: user:${data.userId}`);
     return { event: 'registered', data: { userId: data.userId } };
   }
 
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
-    @MessageBody() data: { senderId: string; receiverId: string; content: string },
-    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      senderId: string;
+      receiverId: string;
+      content: string;
+    },
   ) {
     try {
+      console.log('📩 WebSocket sendMessage received:', data);
+
       const createMessageDto: CreateMessageDto = {
         receiverId: data.receiverId,
         content: data.content,
       };
 
-      const message = await this.messagesService.create(
+      const result = await this.messagesService.create(
         data.senderId,
         createMessageDto,
       );
 
+      const message = result.data;
+      console.log('✅ Message created:', message.id);
+
       // Emit to sender
+      console.log(`📤 Emitting to sender: user:${data.senderId}`);
       this.server.to(`user:${data.senderId}`).emit('messageSent', message);
 
       // Emit to receiver
-      this.server.to(`user:${data.receiverId}`).emit('messageReceived', message);
+      console.log(`📨 Emitting to receiver: user:${data.receiverId}`);
+      this.server
+        .to(`user:${data.receiverId}`)
+        .emit('messageReceived', message);
 
       return { event: 'messageSent', data: message };
     } catch (error) {
+      console.error('❌ Error in sendMessage:', error);
       return { event: 'error', data: { message: error.message } };
     }
   }
@@ -88,8 +106,12 @@ export class MessagesGateway
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('typing')
   handleTyping(
-    @MessageBody() data: { senderId: string; receiverId: string; isTyping: boolean },
-    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      senderId: string;
+      receiverId: string;
+      isTyping: boolean;
+    },
   ) {
     // Emit typing indicator to receiver
     this.server.to(`user:${data.receiverId}`).emit('userTyping', {
@@ -102,13 +124,14 @@ export class MessagesGateway
   @SubscribeMessage('markAsRead')
   async handleMarkAsRead(
     @MessageBody() data: { messageId: string; userId: string },
-    @ConnectedSocket() client: Socket,
   ) {
     try {
-      const message = await this.messagesService.markAsRead(
+      const result = await this.messagesService.markAsRead(
         data.messageId,
         data.userId,
       );
+
+      const message = result.data;
 
       // Notify sender that message was read
       this.server.to(`user:${message.senderId}`).emit('messageRead', {

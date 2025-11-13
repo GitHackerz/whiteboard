@@ -44,7 +44,7 @@ export default function ChatPage() {
   useEffect(() => {
     const fetchInstructors = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/enrolled`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/courses/enrolled`, {
           headers: {
             Authorization: `Bearer ${session?.accessToken}`,
           },

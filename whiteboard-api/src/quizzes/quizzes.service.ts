@@ -3,8 +3,12 @@ import {
     NotFoundException,
     ForbiddenException,
     BadRequestException,
+    Inject,
+    forwardRef,
+    Optional,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import {
     CreateQuizDto,
     UpdateQuizDto,
@@ -15,7 +19,12 @@ import {
 
 @Injectable()
 export class QuizzesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Optional()
+    @Inject(forwardRef(() => NotificationsService))
+    private notificationsService?: NotificationsService,
+  ) {}
 
   async createQuiz(userId: string, dto: CreateQuizDto) {
     const course = await this.prisma.course.findUnique({
@@ -609,6 +618,16 @@ export class QuizzesService {
         quiz: {
           include: {
             questions: true,
+            course: {
+              select: {
+                title: true,
+              },
+            },
+            module: {
+              select: {
+                title: true,
+              },
+            },
           },
         },
         answers: {
@@ -618,6 +637,20 @@ export class QuizzesService {
         },
       },
     });
+
+    // Send notification about quiz completion
+    if (this.notificationsService) {
+      await this.notificationsService.notifyQuizCompleted(
+        userId,
+        updatedSubmission.quiz.title,
+        updatedSubmission.quiz.course?.title ||
+          updatedSubmission.quiz.module?.title ||
+          'Course',
+        earnedPoints,
+        totalPoints,
+        updatedSubmission.quizId,
+      );
+    }
 
     return {
       success: true,

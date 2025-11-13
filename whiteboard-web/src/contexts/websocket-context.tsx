@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
-import { toast } from 'sonner';
+import { getNotifications } from '@/actions/notifications';
 
 interface WebSocketContextType {
   notificationSocket: Socket | null;
@@ -48,14 +48,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     if (!token) return;
     
     try {
-      const response = await fetch('http://localhost:4050/api/notifications', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      setNotifications(data.notifications || []);
-      setUnreadCount(data.unreadCount || 0);
+      const result = await getNotifications();
+      if (result.success && result.data) {
+        setNotifications(result.data.notifications || []);
+        setUnreadCount(result.data.unreadCount || 0);
+      }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     }
@@ -102,10 +99,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       setNotifications(prev => [notification, ...prev]);
       setUnreadCount(prev => prev + 1);
       
-      // Show toast notification
-      toast.info(notification.title, {
-        description: notification.message,
-      });
     });
 
     notifSocket.on('error', (error) => {
@@ -133,6 +126,15 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       console.log('✅ Registered for messages:', data);
     });
 
+    // Debug listeners
+    msgSocket.on('messageSent', (data) => {
+      console.log('🔔 [WebSocket Context] messageSent event:', data);
+    });
+
+    msgSocket.on('messageReceived', (data) => {
+      console.log('🔔 [WebSocket Context] messageReceived event:', data);
+    });
+
     msgSocket.on('error', (error) => {
       console.error('Message socket error:', error);
     });
@@ -140,13 +142,14 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     setMessageSocket(msgSocket);
 
     // Fetch initial notifications
-    refreshNotifications();
+    void refreshNotifications();
 
     return () => {
       notifSocket.disconnect();
       msgSocket.disconnect();
     };
-  }, [token, user, refreshNotifications]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, user?.id]);
 
   return (
     <WebSocketContext.Provider

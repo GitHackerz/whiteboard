@@ -3,6 +3,8 @@ import {
   NotFoundException,
   ForbiddenException,
   ConflictException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -10,10 +12,15 @@ import {
   UpdateCourseDto,
   QueryCoursesDto,
 } from './dto/course.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class CoursesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationsService))
+    private notificationsService: NotificationsService,
+  ) {}
 
   async findAll(query: QueryCoursesDto, userId?: string) {
     const { page = 1, limit = 10, search, instructorId } = query;
@@ -464,9 +471,32 @@ export class CoursesService {
             id: true,
             code: true,
             title: true,
+            instructorId: true,
+          },
+        },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
           },
         },
       },
+    });
+
+    // Notify student about enrollment
+    await this.notificationsService.notifyCourseEnrollment(
+      userId,
+      course.title,
+      courseId,
+    );
+
+    // Notify instructor about new enrollment
+    await this.notificationsService.create({
+      userId: enrollment.course.instructorId,
+      type: 'ENROLLMENT',
+      title: 'New Student Enrolled',
+      message: `${enrollment.user.firstName} ${enrollment.user.lastName} enrolled in ${course.title}`,
+      data: { courseId, studentId: userId },
     });
 
     return {
@@ -785,9 +815,11 @@ export class CoursesService {
 
     const students = enrollments.map((enrollment) => ({
       id: enrollment.user.id,
+      firstName: enrollment.user.firstName,
+      lastName: enrollment.user.lastName,
       name: `${enrollment.user.firstName} ${enrollment.user.lastName}`,
       email: enrollment.user.email,
-      avatar: enrollment.user.avatar,
+      image: enrollment.user.avatar,
       role: enrollment.user.role,
       progress: enrollment.progress,
       enrolledAt: enrollment.enrolledAt,

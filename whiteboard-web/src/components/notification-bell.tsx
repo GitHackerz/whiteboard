@@ -3,15 +3,16 @@
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWebSocket } from '@/contexts/websocket-context';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
+import { markNotificationAsRead, markAllNotificationsAsRead } from '@/actions/notifications';
 
 export function NotificationBell() {
   const { unreadCount, notifications, refreshNotifications, isConnected } = useWebSocket();
@@ -19,14 +20,9 @@ export function NotificationBell() {
 
   const handleMarkAsRead = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:4050/api/notifications/${id}/read`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const result = await markNotificationAsRead(id);
       
-      if (response.ok) {
+      if (result.success) {
         refreshNotifications();
       }
     } catch (error) {
@@ -36,14 +32,9 @@ export function NotificationBell() {
 
   const handleMarkAllAsRead = async () => {
     try {
-      const response = await fetch('http://localhost:4050/api/notifications/read-all', {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const result = await markAllNotificationsAsRead();
       
-      if (response.ok) {
+      if (result.success) {
         refreshNotifications();
       }
     } catch (error) {
@@ -93,7 +84,7 @@ export function NotificationBell() {
                   key={notification.id}
                   onClick={() => {
                     if (!notification.isRead) {
-                      handleMarkAsRead(notification.id);
+                      void handleMarkAsRead(notification.id);
                     }
                   }}
                   className={cn(
@@ -104,7 +95,7 @@ export function NotificationBell() {
                   <div className="flex items-start gap-3">
                     <div
                       className={cn(
-                        'h-2 w-2 rounded-full mt-2 flex-shrink-0',
+                        'h-2 w-2 rounded-full mt-2 shrink-0',
                         !notification.isRead ? 'bg-blue-500' : 'bg-gray-300'
                       )}
                     />

@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/auth-options';
-import { redirect, notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { getCourseById, getMyEnrollments, enrollInCourse, getEnrolledStudents } from '@/actions/courses';
 import { getAssignments } from '@/actions/assignments';
 import { getCourseModules } from '@/actions/modules';
@@ -40,12 +40,12 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
   ]);
 
   if (!courseResult.success) {
-    return notFound();
+    return redirect('/courses')
   }
     
   const course = courseResult.data;
   if (!course) {
-    return notFound();
+    return redirect('/courses')
   }
 
   const enrollments = enrollmentsResult.success ? enrollmentsResult.data || [] : [];
@@ -71,7 +71,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
   ]);
 
   if (!assignmentsResult.success) {
-    return notFound();
+    return redirect('/courses')
   }
 
   const assignments = assignmentsResult.data?.assignments || [];
@@ -289,7 +289,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                       href={`/assignments/${assignment.id}`}
                       className="block"
                     >
-                      <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors">
+                      <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent hover:text-accent-foreground transition-colors">
                         <div className="flex-1">
                           <p className="font-medium">{assignment.title}</p>
                           <p className="text-sm text-muted-foreground">
@@ -443,7 +443,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                         href={`/assignments/${assignment.id}`}
                         className="block"
                       >
-                        <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent transition-colors">
+                        <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent hover:text-accent-foreground transition-colors">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <p className="font-medium">{assignment.title}</p>
@@ -523,7 +523,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                     {enrolledStudents.map((student: any) => (
                       <div
                         key={student.id}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 hover:text-accent-foreground transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">

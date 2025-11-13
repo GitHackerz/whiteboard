@@ -2,8 +2,11 @@ import {
     Injectable,
     NotFoundException,
     ForbiddenException,
+    Inject,
+    forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import {
     CreateModuleDto,
     UpdateModuleDto,
@@ -15,7 +18,11 @@ import {
 
 @Injectable()
 export class ModulesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationsService))
+    private notificationsService: NotificationsService,
+  ) {}
 
   // ===== MODULE MANAGEMENT (Instructor) =====
 
@@ -457,6 +464,12 @@ export class ModulesService {
             },
           },
         },
+        course: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
       },
     });
 
@@ -468,6 +481,16 @@ export class ModulesService {
     );
 
     if (allCompleted) {
+      const existingProgress = await this.prisma.moduleProgress.findUnique({
+        where: {
+          userId_moduleId: { userId, moduleId },
+        },
+      });
+
+      // Only notify if this is the first time completing the module
+      const wasNotCompleted =
+        !existingProgress || !existingProgress.isCompleted;
+
       await this.prisma.moduleProgress.upsert({
         where: {
           userId_moduleId: { userId, moduleId },
@@ -484,6 +507,16 @@ export class ModulesService {
           completedAt: new Date(),
         },
       });
+
+      // Send notification about module completion
+      if (wasNotCompleted) {
+        await this.notificationsService.notifyModuleCompleted(
+          userId,
+          module.title,
+          module.course.title,
+          moduleId,
+        );
+      }
     }
   }
 
@@ -508,10 +541,33 @@ export class ModulesService {
       (completedModules / modules.length) * 100,
     );
 
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: { userId, courseId },
+    });
+
+    const previousProgress = enrollment?.progress || 0;
+
     await this.prisma.enrollment.updateMany({
       where: { userId, courseId },
       data: { progress: progressPercentage },
     });
+
+    // Notify when course is completed (100% progress)
+    if (progressPercentage === 100 && previousProgress < 100) {
+      const course = await this.prisma.course.findUnique({
+        where: { id: courseId },
+        select: { title: true },
+      });
+
+      if (course) {
+        await this.notificationsService.notifyCourseCompleted(
+          userId,
+          course.title,
+          courseId,
+          progressPercentage,
+        );
+      }
+    }
   }
 
   // ===== STATISTICS (Instructor) =====

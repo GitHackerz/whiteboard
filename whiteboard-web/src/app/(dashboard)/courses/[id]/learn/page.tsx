@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/auth-options';
-import { redirect, notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { getCourseById, getMyEnrollments, enrollInCourse } from '@/actions/courses';
 import { getCourseModules } from '@/actions/modules';
 import { CourseModuleResponse } from '@/actions/utils/types';
@@ -27,7 +27,7 @@ export default async function CourseLearningPage({
   ]);
 
   if (!courseResult.success || !courseResult.data) {
-    return notFound();
+    return redirect('/courses')
   }
 
   const course = courseResult.data;

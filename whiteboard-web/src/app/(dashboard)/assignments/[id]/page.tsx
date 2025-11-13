@@ -1,5 +1,5 @@
 import { getServerSession } from 'next-auth';
-import { redirect, notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { authOptions } from '@/app/api/auth/auth-options';
 import { getAssignmentById } from '@/actions/assignments';
 import { AssignmentDetailClient } from '@/components/assignments/assignment-detail-client';
@@ -21,7 +21,7 @@ export default async function AssignmentDetailPage({ params }: AssignmentDetailP
   const result = await getAssignmentById(id);
 
   if (!result.success || !result.data) {
-    notFound();
+    return redirect('/assignments');
   }
 
   const assignment = result.data;

@@ -1,10 +1,8 @@
 import {
     Injectable,
     NotFoundException,
-    ForbiddenException,
-    BadRequestException,
-    Inject,
-    forwardRef,
+    ForbiddenException, Inject,
+    forwardRef
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -88,6 +86,7 @@ export class AssignmentsService {
     const where: any = {};
 
     if (courseId) {
+      // Check if user is enrolled as student OR is the course instructor
       const enrollment = await this.prisma.enrollment.findFirst({
         where: {
           courseId,
@@ -95,7 +94,14 @@ export class AssignmentsService {
         },
       });
 
-      if (!enrollment) {
+      const course = await this.prisma.course.findUnique({
+        where: { id: courseId },
+        select: { instructorId: true },
+      });
+
+      const isInstructor = course?.instructorId === userId;
+
+      if (!enrollment && !isInstructor) {
         throw new ForbiddenException('Not enrolled in this course');
       }
 
@@ -151,6 +157,26 @@ export class AssignmentsService {
   }
 
   async findOne(userId: string, id: string) {
+    // First get the assignment to check if user is instructor
+    const assignmentBasic = await this.prisma.assignment.findUnique({
+      where: { id },
+      select: {
+        courseId: true,
+      },
+    });
+
+    if (!assignmentBasic) {
+      throw new NotFoundException('Assignment not found');
+    }
+
+    // Check if user is the course instructor
+    const course = await this.prisma.course.findUnique({
+      where: { id: assignmentBasic.courseId },
+      select: { instructorId: true },
+    });
+
+    const isInstructor = course?.instructorId === userId;
+
     const assignment = await this.prisma.assignment.findUnique({
       where: { id },
       include: {
@@ -159,10 +185,29 @@ export class AssignmentsService {
             id: true,
             code: true,
             title: true,
+            instructorId: true,
           },
         },
-        submissions: {
-          where: { userId },
+        submissions: isInstructor
+          ? {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                  },
+                },
+              },
+            }
+          : {
+              where: { userId },
+            },
+        _count: {
+          select: {
+            submissions: true,
+          },
         },
       },
     });
@@ -171,6 +216,7 @@ export class AssignmentsService {
       throw new NotFoundException('Assignment not found');
     }
 
+    // Check if user is enrolled as student OR is the course instructor
     const enrollment = await this.prisma.enrollment.findFirst({
       where: {
         courseId: assignment.courseId,
@@ -178,7 +224,7 @@ export class AssignmentsService {
       },
     });
 
-    if (!enrollment) {
+    if (!enrollment && !isInstructor) {
       throw new ForbiddenException('Not enrolled in this course');
     }
 
@@ -285,42 +331,71 @@ export class AssignmentsService {
       },
     });
 
-    if (existingSubmission) {
-      throw new BadRequestException(
-        'You have already submitted this assignment. Re-submissions are not allowed.',
-      );
-    }
+    let submission;
 
-    const submission = await this.prisma.submission.create({
-      data: {
-        content: dto.content,
-        attachments: dto.attachments || {},
-        submittedAt: new Date(),
-        assignmentId,
-        userId,
-      },
-      include: {
-        assignment: {
-          select: {
-            id: true,
-            title: true,
-            dueDate: true,
-            maxPoints: true,
+    if (existingSubmission) {
+      // Allow resubmission - update existing submission
+      submission = await this.prisma.submission.update({
+        where: { id: existingSubmission.id },
+        data: {
+          content: dto.content,
+          attachments: dto.attachments || {},
+          submittedAt: new Date(),
+          // Reset grade and feedback when resubmitting
+          grade: null,
+          feedback: null,
+          gradedAt: null,
+        },
+        include: {
+          assignment: {
+            select: {
+              id: true,
+              title: true,
+              dueDate: true,
+              maxPoints: true,
+            },
+          },
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
           },
         },
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
+      });
+    } else {
+      // Create new submission
+      submission = await this.prisma.submission.create({
+        data: {
+          content: dto.content,
+          attachments: dto.attachments || {},
+          submittedAt: new Date(),
+          assignmentId,
+          userId,
+        },
+        include: {
+          assignment: {
+            select: {
+              id: true,
+              title: true,
+              dueDate: true,
+              maxPoints: true,
+            },
+          },
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
           },
         },
-      },
-    });
+      });
+    }
 
     // Notify instructor about new submission
     const course = await this.prisma.course.findUnique({
       where: { id: assignment.courseId },
-      select: { instructorId: true },
+      select: { instructorId: true, title: true },
     });
 
     if (course) {
@@ -330,6 +405,7 @@ export class AssignmentsService {
         studentName,
         assignment.title,
         submission.id,
+        course.title,
       );
     }
 
@@ -405,6 +481,8 @@ export class AssignmentsService {
       submission.assignment.title,
       dto.grade,
       submission.id,
+      submission.assignment.maxPoints,
+      dto.feedback,
     );
 
     return {

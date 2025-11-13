@@ -446,6 +446,20 @@ model CourseReview {
   @@map("course_reviews")
 }
 
+// Announcements system
+model Announcement {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title     String
+  content   String   @db.Text
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("announcements")
+}
+
 // Notifications system
 model Notification {
   id          String           @id @default(uuid())
@@ -461,4 +475,5 @@ model Notification {
 
   @@index([userId, isRead])
   @@map("notifications")
-}
+
+  @@map("course_reviews")
