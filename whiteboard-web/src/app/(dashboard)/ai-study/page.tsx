@@ -1,24 +1,24 @@
 'use client';
 
+import { analyzeDocument } from '@/actions/gemini';
 import { CAGChat } from '@/components/ai-study/CAGChat';
-import { geminiService } from '@/lib/services/geminiService';
 import { fileToBase64, isValidPDF } from '@/lib/utils/fileUtils';
 import { StudyMaterial, UploadedDocument } from '@/types';
 import {
-  BookOpen,
-  Brain,
-  CheckCircle,
-  ChevronLeft,
-  ChevronRight,
-  FileText,
-  MessageCircle,
-  RotateCcw,
-  Sparkles,
-  Target,
-  Trophy,
-  Upload,
-  XCircle,
-  Zap
+    BookOpen,
+    Brain,
+    CheckCircle,
+    ChevronLeft,
+    ChevronRight,
+    FileText,
+    MessageCircle,
+    RotateCcw,
+    Sparkles,
+    Target,
+    Trophy,
+    Upload,
+    XCircle,
+    Zap
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -53,7 +53,7 @@ export default function AIStudyTestPage() {
       const pdfBase64 = await fileToBase64(file);
       
       console.log('🔄 Analyzing document...');
-      const material = await geminiService.analyzeDocument(pdfBase64);
+      const material = await analyzeDocument(pdfBase64);
       
       console.log('✅ Study material received:', material);
       setStudyMaterial(material);
